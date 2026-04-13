@@ -1,0 +1,116 @@
+/* Animaciones Basicas */
+.view-section {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tabs Activos */
+.tab-btn.active {
+    background-color: white;
+    color: #0284c7; /* brand-600 */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.tab-btn:not(.active) {
+    color: rgba(255, 255, 255, 0.9);
+}
+.tab-btn:not(.active):hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Custom Scrollbar para tablas largas */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9; 
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1; 
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; 
+}
+
+/* Estilos de Impresión */
+@media print {
+    body {
+        background-color: white;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Ocultar elementos no deseados */
+    .hide-on-print, header, nav, #alert-container {
+        display: none !important;
+    }
+
+    /* Mostrar e imprimir solo la zona de reportes */
+    .view-section {
+        display: none !important;
+    }
+    
+    #view-reportes {
+        display: block !important;
+    }
+    
+    #view-reportes {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+    
+    .printable-area {
+        display: block !important;
+        width: 100%;
+    }
+
+    /* Ajustes formales para tabla de impresión */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #000 !important;
+        padding: 8px !important;
+        color: #000 !important;
+        font-size: 14pt;
+    }
+    th {
+        background-color: #f3f4f6 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    img.signature-img-print {
+        max-height: 40px;
+        display: block;
+        margin: 0 auto;
+    }
+}
+
+/* Botón de Asistencia Toggle */
+.btn-asistencia {
+    transition: all 0.2s;
+}
+.btn-asistencia.aspa {
+    background-color: #ef4444; /* red-500 */
+    color: white;
+    border-color: #ef4444;
+}
+.btn-asistencia.firma-ok {
+    background-color: #10b981; /* emerald-500 */
+    color: white;
+    border-color: #10b981;
+}
+
+.signature-img-preview {
+    max-height: 30px;
+    border-radius: 4px;
+    background: white;
+}

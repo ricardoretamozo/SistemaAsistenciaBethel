@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Asistencia - Bethel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col font-sans">
+    
+    <!-- Navbar / Header -->
+    <header class="bg-gradient-to-r from-brand-600 to-indigo-700 text-white shadow-lg sticky top-0 z-40 hide-on-print">
+        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center gap-3 mb-4 md:mb-0">
+                <div class="bg-white text-brand-600 rounded-full p-2 w-10 h-10 flex items-center justify-center shadow-inner">
+                    <i class="fa-solid fa-church text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold leading-tight">Iglesia Bethel</h1>
+                    <p class="text-sm text-brand-100 opacity-90">Registro de Asistencia</p>
+                </div>
+            </div>
+            
+            <!-- Tabs / Navigation -->
+            <nav class="flex gap-1 bg-white/10 p-1 rounded-lg backdrop-blur-sm w-full md:w-auto overflow-x-auto print-hidden">
+                <button onclick="app.showTab('asistencia')" id="tab-asistencia" class="tab-btn active px-4 py-2 rounded-md font-medium text-sm transition-all duration-300 flex-1 md:flex-none whitespace-nowrap">
+                    <i class="fa-solid fa-clipboard-check mr-2"></i>Asistencia
+                </button>
+                <button onclick="app.showTab('miembros')" id="tab-miembros" class="tab-btn px-4 py-2 rounded-md font-medium text-sm transition-all duration-300 flex-1 md:flex-none whitespace-nowrap">
+                    <i class="fa-solid fa-users mr-2"></i>Miembros
+                </button>
+                <button onclick="app.showTab('reportes')" id="tab-reportes" class="tab-btn px-4 py-2 rounded-md font-medium text-sm transition-all duration-300 flex-1 md:flex-none whitespace-nowrap">
+                    <i class="fa-solid fa-chart-line mr-2"></i>Reportes
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto px-4 py-6 md:py-8 w-full max-w-5xl">
+        
+        <!-- Alertas globales -->
+        <div id="alert-container" class="fixed top-24 right-4 z-50 flex flex-col gap-2"></div>
+
+        <!-- ==========================================
+             VISTA: ASISTENCIA (INTELIGENTE)
+        =========================================== -->
+        <section id="view-asistencia" class="view-section active">
+            <div class="mb-6 hide-on-print">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Panel de Asistencia</h2>
+                        <p class="text-brand-600 font-medium text-sm mt-1" id="fecha-hoy-display"></p>
+                    </div>
+                </div>
+                
+                <!-- Tarjetas de Eventos del Día -->
+                <div id="eventos-hoy-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+                    <!-- Rellenado por JS -->
+                </div>
+            </div>
+
+            <!-- Panel cuando no hay evento seleccionado -->
+            <div id="asistencia-empty-state" class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center hide-on-print mt-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 text-gray-400 mb-4">
+                    <i class="fa-solid fa-hand-pointer text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-1">Selecciona un Culto</h3>
+                <p class="text-gray-500">Haz clic en uno de los eventos de hoy en las tarjetas de arriba para tomar lista.</p>
+            </div>
+
+            <!-- Tabla de asistencia -->
+            <div id="asistencia-table-container" class="hidden bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mt-6">
+                <div class="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center hide-on-print flex-wrap gap-4">
+                     <div class="flex flex-col">
+                        <span class="font-bold text-gray-800 text-lg" id="titulo-evento-seleccionado">Evento</span>
+                        <span class="font-semibold text-gray-500 text-sm flex items-center"><i class="fa-solid fa-users text-brand-500 mr-2"></i> <span id="asistencia-count">0</span> Miembros</span>
+                     </div>
+                     <button onclick="app.guardarAsistencia()" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-lg font-medium shadow-md shadow-brand-500/30 transition-all transform active:scale-95 flex items-center">
+                        <i class="fa-solid fa-save mr-2"></i> Guardar Todo
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider border-b border-gray-200">
+                                <th class="p-4 font-semibold w-12 text-center text-gray-400">#</th>
+                                <th class="p-4 font-semibold">Miembro</th>
+                                <th class="p-4 font-semibold text-center w-40">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-asistencia" class="divide-y divide-gray-100">
+                            <!-- Filas generadas por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             VISTA: MIEMBROS 
+        =========================================== -->
+        <section id="view-miembros" class="view-section hidden">
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="w-full md:w-1/3">
+                    <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 sticky top-24">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fa-solid fa-user-plus text-brand-500 mr-2"></i> Nuevo Miembro
+                        </h3>
+                        <form id="form-miembro" onsubmit="app.guardarMiembro(event)">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
+                                <input type="text" id="miembro-nombre" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors">
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
+                                <input type="text" id="miembro-apellido" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors">
+                            </div>
+                            <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white py-2.5 rounded-lg font-medium transition-colors shadow-md flex justify-center items-center">
+                                <i class="fa-solid fa-plus mr-2"></i> Agregar Miembro
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="w-full md:w-2/3">
+                    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                        <div class="p-4 bg-gray-50 border-b border-gray-100">
+                             <h3 class="font-bold text-gray-700">Directorio de Miembros</h3>
+                        </div>
+                        <ul id="lista-miembros" class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+                            <!-- Items JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             VISTA: REPORTES (CONSOLIDADO SEMANAL)
+        =========================================== -->
+        <section id="view-reportes" class="view-section hidden print-visible">
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden p-6 w-full max-w-full overflow-x-auto">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 pb-6 border-b border-gray-100 hide-on-print gap-4">
+                    <div class="w-full sm:w-1/2">
+                         <label class="block text-sm font-medium text-gray-700 mb-1">Seleccionar Semana</label>
+                         <input type="week" id="input-semana-reporte" class="w-full bg-gray-50 border border-gray-300 text-gray-700 py-2 px-3 rounded-lg focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div class="flex w-full sm:w-auto gap-2 mt-4 sm:mt-0">
+                        <button onclick="app.refreshReporte()" class="w-full sm:w-auto bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2.5 rounded-lg font-medium transition-all print-hidden">
+                            <i class="fa-solid fa-rotate-right mr-2"></i> Actualizar
+                        </button>
+                        <button onclick="window.print()" class="w-full sm:w-auto bg-gray-800 hover:bg-gray-900 text-white px-6 py-2.5 rounded-lg font-medium transition-all print-hidden">
+                            <i class="fa-solid fa-print mr-2"></i> Imprimir
+                        </button>
+                    </div>
+                </div>
+
+                <div id="reporte-content" class="min-h-[300px]">
+                     <div class="text-center text-gray-400 py-12 hide-on-print" id="reporte-empty">
+                         <i class="fa-solid fa-calendar-week text-4xl mb-3"></i>
+                         <p>Selecciona una semana para cargar el reporte consolidado.</p>
+                     </div>
+                     <div id="reporte-datos" class="hidden printable-area w-full overflow-x-auto">
+                         <div class="text-center mb-6 min-w-[800px]">
+                             <h2 class="text-2xl font-bold uppercase tracking-wide">Iglesia Bethel - Alto Selva Alegre</h2>
+                             <h3 class="text-xl mt-1 text-gray-800 border-b-2 border-gray-300 inline-block pb-1">Reporte Semanal Consolidado</h3>
+                             <p class="text-gray-600 mt-2 font-medium" id="reporte-rango-semana"></p>
+                         </div>
+                         <table class="w-full text-left border-collapse border border-gray-300 min-w-[800px] text-sm">
+                             <thead>
+                                 <tr class="bg-gray-100" id="thead-reporte">
+                                     <th class="border border-gray-300 p-2 text-center w-12 sticky left-0 bg-gray-100 z-10">N°</th>
+                                     <th class="border border-gray-300 p-2 sticky left-12 bg-gray-100 z-10">Apellidos y Nombres</th>
+                                     <!-- Eventos de la semana inyectados dinámicamente -->
+                                 </tr>
+                             </thead>
+                             <tbody id="tbody-reporte">
+                                 <!-- Filas Reporte -->
+                             </tbody>
+                         </table>
+                         <p class="text-xs text-gray-500 mt-4 max-w-[800px] print:block"><i class="fa-solid fa-info-circle"></i> Nota: Una "X" grande indica asistencia (con aspa o firma digital registrada en el sistema el día correspondiente).</p>
+                     </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Signature Pad (Igual) -->
+    <div id="signature-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex justify-center items-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="signature-modal-content">
+            <div class="bg-gray-50 border-b border-gray-100 px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-gray-800 text-lg">Firma Digital</h3>
+                <button onclick="signaturePad.close()" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 flex flex-col items-center">
+                <p class="text-sm text-gray-500 mb-3 text-center w-full" id="signature-miembro-nombre">Firmando como...</p>
+                
+                <div class="w-full border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 overflow-hidden relative" style="height: 200px;">
+                    <canvas id="signature-canvas" class="w-full h-full cursor-crosshair touch-none"></canvas>
+                    <div id="signature-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-300 pointer-events-none">
+                        <span>Firme aquí</span>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between w-full mt-4">
+                    <button onclick="signaturePad.clear()" class="text-sm text-gray-500 hover:text-gray-800 font-medium px-2 py-1">
+                        <i class="fa-solid fa-eraser mr-1"></i> Limpiar
+                    </button>
+                    <div class="space-x-2">
+                        <button onclick="signaturePad.close()" class="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50">Cancelar</button>
+                        <button onclick="signaturePad.save()" class="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 shadow-md">Guardar Firma</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/signature.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

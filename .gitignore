@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+.env
+
+# Ignorar las carpetas locales de persistencia de datos y bases de datos aisladas
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Pero asegurarnos de que la carpeta public y src suban (si existieran)
+!public/
