@@ -1,6 +1,6 @@
 // app.js - Lógica principal del Frontend (Eventos Recurrentes)
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = '/api';
 
 // Utilidades de Fechas
 function getTodayString() {
